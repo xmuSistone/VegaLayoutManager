@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f9f9f9"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/main_position_view"
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/main_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="Vega Manager" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/main_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
