@@ -13,7 +13,7 @@ Ios实现：[VegaScroll](https://github.com/AppliKeySolutions/VegaScroll)
 
 ### 使用方法
 ```java
-recyclerView.setLayoutManager(new CustLayoutManager());
+recyclerView.setLayoutManager(new VegaLayoutManager());
 ```
 
 ### demo下载

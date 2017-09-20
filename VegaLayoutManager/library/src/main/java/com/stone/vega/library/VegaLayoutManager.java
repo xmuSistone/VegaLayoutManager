@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 /**
  * Created by xmuSistone on 2017/9/20.
  */
-public class CustLayoutManager extends RecyclerView.LayoutManager {
+public class VegaLayoutManager extends RecyclerView.LayoutManager {
 
     private int mDecoratedMeasuredWidth;
     private int mDecoratedMeasuredHeight;

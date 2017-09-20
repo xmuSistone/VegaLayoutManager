@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.stone.vega.library.CustLayoutManager;
+import com.stone.vega.library.VegaLayoutManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 2. recyclerView数据填充
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
-        recyclerView.setLayoutManager(new CustLayoutManager());
+        recyclerView.setLayoutManager(new VegaLayoutManager());
         RecyclerView.Adapter adapter = getAdapter();
         recyclerView.setAdapter(adapter);
 

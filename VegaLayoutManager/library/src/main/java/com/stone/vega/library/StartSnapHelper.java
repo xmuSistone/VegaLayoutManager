@@ -16,13 +16,13 @@ public class StartSnapHelper extends LinearSnapHelper {
                                               @NonNull View targetView) {
         int[] out = new int[2];
         out[0] = 0;
-        out[1] = ((CustLayoutManager) layoutManager).getSnapHeight();
+        out[1] = ((VegaLayoutManager) layoutManager).getSnapHeight();
         return out;
     }
 
     @Override
     public View findSnapView(RecyclerView.LayoutManager layoutManager) {
-        CustLayoutManager custLayoutManager = (CustLayoutManager) layoutManager;
+        VegaLayoutManager custLayoutManager = (VegaLayoutManager) layoutManager;
         return custLayoutManager.findSnapView();
     }
 }
