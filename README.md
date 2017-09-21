@@ -1,5 +1,5 @@
 # VegaLayoutManager
-a customized RecyclerView.LayoutManager which fade and shrink the head itemView when scrolling.
+a customized LayoutManager - fade and shrink the head itemView when scrolling.
 
 ### 效果
 ![preview](https://camo.githubusercontent.com/bb984a34320d944ccf561857995c90629f5037a0/68747470733a2f2f662e666c6f636b75736572636f6e74656e74322e636f6d2f646334323539613135303438303136333139393038353836)
