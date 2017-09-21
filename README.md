@@ -3,7 +3,7 @@ a customized LayoutManager - fade and shrink the head itemView when scrolling.
 
 ### 实现效果
 <img src="capture.gif" width="373" height="532"/><img style width="2px" /><img src="capture2.png" width="480" height="532"/>
-dribbble设计：[链接](https://dribbble.com/shots/3793079-iPhone-8-iOS-11)<br>
+Dribbble设计：[链接](https://dribbble.com/shots/3793079-iPhone-8-iOS-11)<br>
 IOS实现：[VegaScroll](https://github.com/AppliKeySolutions/VegaScroll)
 
 ### 代码思路
