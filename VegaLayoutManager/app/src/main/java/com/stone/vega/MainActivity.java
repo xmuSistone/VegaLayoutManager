@@ -1,5 +1,6 @@
 package com.stone.vega;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -29,11 +30,14 @@ public class MainActivity extends AppCompatActivity {
         // 1. 沉浸式状态栏 + dark模式
         View positionView = findViewById(R.id.main_position_view);
         boolean immerse = Utils.immerseStatusBar(this);
-        Utils.setDarkMode(this);
+        boolean darkMode = Utils.setDarkMode(this);
         if (immerse) {
             ViewGroup.LayoutParams lp = positionView.getLayoutParams();
             lp.height = Utils.getStatusBarHeight(this);
             positionView.setLayoutParams(lp);
+            if (!darkMode) {
+                positionView.setBackgroundColor(Color.BLACK);
+            }
         } else {
             positionView.setVisibility(View.GONE);
         }
@@ -43,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // 2. recyclerView数据填充
+        // 3. recyclerView数据填充
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
         recyclerView.setLayoutManager(new VegaLayoutManager());
         RecyclerView.Adapter adapter = getAdapter();
@@ -72,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             dataList.add(new StockEntity("Intel Inc.", 37.22f, 1, "+0.22 (+0.61%)"));
             dataList.add(new StockEntity("Cisco Systems Inc.", 32.49f, -1, "-0.03 (-0.08%)"));
             dataList.add(new StockEntity("Qualcomm Inc.", 52.30f, 1, "+0.05 (+0.10%)"));
-            dataList.add(new StockEntity("Sony Inc.", 37.65f, -1, "-0.74 (-1.93%))"));
+            dataList.add(new StockEntity("Sony Inc.", 37.65f, -1, "-0.74 (-1.93%)"));
         }
     }
 
