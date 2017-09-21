@@ -2,7 +2,6 @@ package com.stone.vega.library;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,37 +77,6 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
                 break;
             }
         }
-    }
-
-    @Override
-    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
-
-        int num = locationRects.size();
-        Log.d("LeiTest", "position1=" + position);
-        super.smoothScrollToPosition(recyclerView, state, position);
-    }
-
-    @Override
-    public void scrollToPosition(int position) {
-        Log.d("LeiTest", "position2=" + position);
-        super.scrollToPosition(position);
-    }
-
-    @Override
-    public int computeVerticalScrollOffset(RecyclerView.State state) {
-        Log.d("LeiTest", "position3=" + super.computeVerticalScrollOffset(state));
-        return super.computeVerticalScrollOffset(state);
-    }
-
-    @Override
-    public void startSmoothScroll(RecyclerView.SmoothScroller smoothScroller) {
-        super.startSmoothScroll(smoothScroller);
-    }
-
-    @Override
-    public int computeVerticalScrollRange(RecyclerView.State state) {
-        Log.d("LeiTest", "position3=" + super.computeVerticalScrollRange(state));
-        return super.computeVerticalScrollRange(state);
     }
 
     /**
@@ -187,7 +155,7 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
         int layoutTop, layoutBottom;
         if (topDistance < mDecoratedMeasuredHeight && topDistance >= 0) {
             float rate1 = (float) topDistance / mDecoratedMeasuredHeight;
-            float rate2 = 1 - rate1 * rate1 / 5;
+            float rate2 = 1 - rate1 * rate1 / 3;
             float rate3 = 1 - rate1 * rate1;
             child.setScaleX(rate2);
             child.setScaleY(rate2);
