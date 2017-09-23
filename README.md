@@ -12,7 +12,11 @@ RecyclerView最顶部的itemView，会随着手指滑动实现收缩隐藏与放
 由于想要在任意时刻都能snap到第一个子View，所以在LayoutManager中用了比较讨巧的方法去设定scroll的最大值。
 
 ### 使用方法
-一行代码搞定：
+1. gradle引入
+```gradle
+compile 'com.stone.vega.library:VegaLayoutManager:1.0.0'
+```
+2. java文件中设定LayoutManager
 ```java
 recyclerView.setLayoutManager(new VegaLayoutManager());
 ```
