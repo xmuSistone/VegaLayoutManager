@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 25
@@ -30,3 +31,18 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     testCompile 'junit:junit:4.12'
 }
+
+
+
+publish {
+    userOrg = 'xmuzll'
+    groupId = 'com.stone.vega.library'
+    artifactId = 'VegaLayoutManager'
+    publishVersion = '1.0.0'
+    desc = 'Vega Layout'
+    website = 'https://github.com/xmuSistone/VegaLayoutManager'
+}
+
+// .gradlew clean build bintrayUpload -PbintrayUser=xmuzll -PbintrayKey=xxxxxxxxxxxxxxxxxxxxxx -PdryRun=false
+
+
