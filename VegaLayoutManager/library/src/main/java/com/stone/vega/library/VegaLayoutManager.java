@@ -82,9 +82,14 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
      */
     private void computeMaxScroll() {
         maxScroll = locationRects.get(locationRects.size() - 1).bottom - getHeight();
+        if (maxScroll < 0) {
+            maxScroll = 0;
+            return;
+        }
+
         int childCount = getChildCount();
         int screenFilledHeight = 0;
-        for (int i = childCount; i >= 0; i--) {
+        for (int i = childCount - 1; i >= 0; i--) {
             Rect rect = locationRects.get(i);
             screenFilledHeight = screenFilledHeight + (rect.bottom - rect.top);
             if (screenFilledHeight > getHeight()) {
