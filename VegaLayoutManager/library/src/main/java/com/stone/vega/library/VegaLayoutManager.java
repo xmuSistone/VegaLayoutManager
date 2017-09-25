@@ -61,6 +61,22 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
         computeMaxScroll();
     }
 
+
+    /**
+     * 对外提供接口，找到第一个可视view的index
+     */
+    public int findFirstVisibleItemPosition() {
+        int count = locationRects.size();
+        Rect displayRect = new Rect(0, scroll, getWidth(), getHeight() + scroll);
+        for (int i = 0; i < count; i++) {
+            if (Rect.intersects(displayRect, locationRects.get(i)) &&
+                    attachedItems.get(i)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     /**
      * 计算可滑动的最大值
      */
