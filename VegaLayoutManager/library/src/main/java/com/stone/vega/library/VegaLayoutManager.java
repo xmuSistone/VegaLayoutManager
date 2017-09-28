@@ -3,6 +3,7 @@ package com.stone.vega.library;
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,8 +16,9 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
     private int mDecoratedMeasuredHeight;
     private int scroll = 0;
     private SparseArray<Rect> locationRects = new SparseArray<>();
-    private SparseArray<Boolean> attachedItems = new SparseArray<>();
+    private SparseBooleanArray attachedItems = new SparseBooleanArray();
     private boolean needSnap = false;
+    private boolean firstLayoutChildren = true;
     private int lastDy = 0;
     private int maxScroll = -1;
 
@@ -27,7 +29,11 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        super.onLayoutChildren(recycler, state);
+        if (!firstLayoutChildren) {
+            return;
+        }
+        firstLayoutChildren = false;
+
         int itemCount = getItemCount();
         if (itemCount <= 0 || state.isPreLayout()) {
             return;
