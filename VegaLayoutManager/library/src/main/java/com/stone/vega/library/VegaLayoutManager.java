@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 public class VegaLayoutManager extends RecyclerView.LayoutManager {
 
     private int scroll = 0;
+    private boolean BOTTOM_ANIMATE = false;
     private SparseArray<Rect> locationRects = new SparseArray<>();
     private SparseBooleanArray attachedItems = new SparseBooleanArray();
     private ArrayMap<Integer, Integer> viewTypeHeightMap = new ArrayMap<>();
@@ -24,6 +25,15 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
     private int maxScroll = -1;
     private RecyclerView.Adapter adapter;
     private RecyclerView.Recycler recycler;
+    private int maxChildCount;
+
+    public VegaLayoutManager(boolean suportBottomAni) {
+        this.BOTTOM_ANIMATE = suportBottomAni;
+    }
+
+    public VegaLayoutManager() {
+
+    }
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
@@ -90,6 +100,12 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
         }
 
         computeMaxScroll();
+    }
+
+    @Override
+    public void onLayoutCompleted(RecyclerView.State state) {
+        super.onLayoutCompleted(state);
+        maxChildCount = getChildCount();
     }
 
     @Override
@@ -192,7 +208,6 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
                 } else {
                     firstVisiblePosition = Math.min(firstVisiblePosition, position);
                 }
-
                 layoutItem(child, locationRects.get(position)); //更新Item位置
             }
         }
@@ -244,6 +259,7 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
         int topDistance = scroll - rect.top;
         int layoutTop, layoutBottom;
         int itemHeight = rect.bottom - rect.top;
+        int bottomDistance = rect.bottom - scroll;
         if (topDistance < itemHeight && topDistance >= 0) {
             float rate1 = (float) topDistance / itemHeight;
             float rate2 = 1 - rate1 * rate1 / 3;
@@ -253,6 +269,17 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
             child.setAlpha(rate3);
             layoutTop = 0;
             layoutBottom = itemHeight;
+        } else if (BOTTOM_ANIMATE && maxChildCount * itemHeight - bottomDistance > 0 && maxChildCount * itemHeight - bottomDistance < itemHeight) {
+            int offset = maxChildCount * itemHeight - bottomDistance;
+            float rate1 = 2.0f * (float) (itemHeight - offset) / itemHeight;
+            float rate2 = 1 - rate1 * rate1 / 3;
+            float rate3 = 1 - rate1 * rate1;
+            child.setScaleX(rate2);
+            child.setScaleY(rate2);
+            child.setAlpha(rate3);
+
+            layoutTop = rect.top - scroll;
+            layoutBottom = rect.bottom - scroll;
         } else {
             child.setScaleX(1);
             child.setScaleY(1);
@@ -263,6 +290,7 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
         }
         layoutDecorated(child, rect.left, layoutTop, rect.right, layoutBottom);
     }
+
 
     @Override
     public boolean canScrollVertically() {
