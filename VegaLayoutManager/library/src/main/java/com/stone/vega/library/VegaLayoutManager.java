@@ -36,8 +36,10 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onItemsChanged(RecyclerView recyclerView) {
         super.onItemsChanged(recyclerView);
-        buildLocationRects();
-        layoutItemsOnScroll();
+        if (null != recycler) {
+            buildLocationRects();
+            layoutItemsOnScroll();
+        }
     }
 
     @Override
