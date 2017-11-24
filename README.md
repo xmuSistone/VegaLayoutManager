@@ -14,7 +14,7 @@ RecyclerView最顶部的itemView，会随着手指滑动实现收缩隐藏与放
 ### 使用方法
 1. gradle引入
 ```gradle
-compile 'com.stone.vega.library:VegaLayoutManager:1.0.1'
+compile 'com.stone.vega.library:VegaLayoutManager:1.0.2'
 ```
 2. java文件中设定LayoutManager
 ```java
@@ -40,9 +40,3 @@ recyclerView.setLayoutManager(new VegaLayoutManager());
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-    
-### 软文
-有一个姑娘，她有一些任性！她还有一些嚣张！<br><br>
-妹纸开了个店，然后盯上了我github。<br><br>
-看在这么靠底的份上，别骂我好么？这真的是一篇软文，不信请扫二维码：<br><br>
-<img width="360px" height="346px" src="https://raw.githubusercontent.com/xmuSistone/xmuSistone.github.io/master/img/global_ad.png" /><img width="388px" height="346px" src="https://raw.githubusercontent.com/xmuSistone/xmuSistone.github.io/master/img/funny1.gif" />
