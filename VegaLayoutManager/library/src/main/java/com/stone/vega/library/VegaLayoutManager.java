@@ -37,10 +37,28 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
     public void onItemsChanged(RecyclerView recyclerView) {
         super.onItemsChanged(recyclerView);
         if (null != recycler) {
-            buildLocationRects();
-            layoutItemsOnScroll();
+            onAdapterChange();
         }
     }
+
+    @Override
+    public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
+        this.adapter = newAdapter;
+        if (null != recycler) {
+            onAdapterChange();
+        }
+        super.onAdapterChanged(oldAdapter, newAdapter);
+    }
+
+    private void onAdapterChange() {
+        buildLocationRects();
+        if (scroll > maxScroll) {
+            scroll = 0;
+        }
+        detachAndScrapAttachedViews(recycler);
+        layoutItemsOnCreate(recycler);
+    }
+
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -92,16 +110,6 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
         computeMaxScroll();
     }
 
-    @Override
-    public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
-        this.adapter = newAdapter;
-        if (null != recycler) {
-            buildLocationRects();
-            layoutItemsOnScroll();
-        }
-        super.onAdapterChanged(oldAdapter, newAdapter);
-    }
-
     /**
      * 对外提供接口，找到第一个可视view的index
      */
@@ -145,17 +153,20 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
      */
     private void layoutItemsOnCreate(RecyclerView.Recycler recycler) {
         int itemCount = getItemCount();
+        Rect displayRect = new Rect(0, scroll, getWidth(), getHeight() + scroll);
         for (int i = 0; i < itemCount; i++) {
-            View childView = recycler.getViewForPosition(i);
-            addView(childView);
-            measureChildWithMargins(childView, View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            layoutItem(childView, locationRects.get(i));
-            attachedItems.put(i, true);
-            childView.setPivotY(0);
-            childView.setPivotX(childView.getMeasuredWidth() / 2);
-
-            if (locationRects.get(i).top > getHeight()) {
-                break;
+            Rect thisRect = locationRects.get(i);
+            if (Rect.intersects(displayRect, thisRect)) {
+                View childView = recycler.getViewForPosition(i);
+                addView(childView);
+                measureChildWithMargins(childView, View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+                layoutItem(childView, locationRects.get(i));
+                attachedItems.put(i, true);
+                childView.setPivotY(0);
+                childView.setPivotX(childView.getMeasuredWidth() / 2);
+                if (thisRect.top - scroll > getHeight()) {
+                    break;
+                }
             }
         }
     }

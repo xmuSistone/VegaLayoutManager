@@ -38,7 +38,7 @@ publish {
     userOrg = 'xmuzll'
     groupId = 'com.stone.vega.library'
     artifactId = 'VegaLayoutManager'
-    publishVersion = '1.0.1'
+    publishVersion = '1.0.3'
     desc = 'Vega Layout'
     website = 'https://github.com/xmuSistone/VegaLayoutManager'
 }
