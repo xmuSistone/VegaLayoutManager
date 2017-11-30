@@ -29,35 +29,11 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
         return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
-    /**
-     * notifyDataSetChanged时会调用此方法
-     */
-    @Override
-    public void onItemsChanged(RecyclerView recyclerView) {
-        super.onItemsChanged(recyclerView);
-        if (null != recycler) {
-            onAdapterChange();
-        }
-    }
-
     @Override
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
-        this.adapter = newAdapter;
-        if (null != recycler) {
-            onAdapterChange();
-        }
         super.onAdapterChanged(oldAdapter, newAdapter);
+        this.adapter = newAdapter;
     }
-
-    private void onAdapterChange() {
-        buildLocationRects();
-        if (scroll > maxScroll) {
-            scroll = 0;
-        }
-        detachAndScrapAttachedViews(recycler);
-        layoutItemsOnCreate(recycler);
-    }
-
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -74,7 +50,6 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void buildLocationRects() {
-        viewTypeHeightMap.clear();
         locationRects.clear();
         attachedItems.clear();
 
@@ -257,7 +232,7 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
         int topDistance = scroll - rect.top;
         int layoutTop, layoutBottom;
         int itemHeight = rect.bottom - rect.top;
-        if (topDistance < itemHeight && topDistance >= 0) {
+        if (topDistance < itemHeight && topDistance > 0) {
             float rate1 = (float) topDistance / itemHeight;
             float rate2 = 1 - rate1 * rate1 / 3;
             float rate3 = 1 - rate1 * rate1;

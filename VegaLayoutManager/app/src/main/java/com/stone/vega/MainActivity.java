@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<StockEntity> dataList = new ArrayList<>();
     private int redColor, greenColor;
+    private RecyclerView.Adapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         // 3. recyclerView数据填充
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
         recyclerView.setLayoutManager(new VegaLayoutManager());
-        RecyclerView.Adapter adapter = getAdapter();
+        adapter = getAdapter();
         recyclerView.setAdapter(adapter);
 
         redColor = getResources().getColor(R.color.red);
@@ -84,10 +85,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:// 点击返回图标事件
-                finish();
-            default:
-                return super.onOptionsItemSelected(item);
+                dataList.remove(0);
+                adapter.notifyItemRemoved(0);
+                break;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     private RecyclerView.Adapter getAdapter() {
