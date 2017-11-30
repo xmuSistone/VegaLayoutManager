@@ -19,7 +19,6 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
     private ArrayMap<Integer, Integer> viewTypeHeightMap = new ArrayMap<>();
 
     private boolean needSnap = false;
-    private boolean firstLayoutChildren = true;
     private int lastDy = 0;
     private int maxScroll = -1;
     private RecyclerView.Adapter adapter;
@@ -63,10 +62,9 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         this.recycler = recycler; // 二话不说，先把recycler保存了
-        if (!firstLayoutChildren || adapter == null || getItemCount() <= 0 || state.isPreLayout()) {
+        if (state.isPreLayout()) {
             return;
         }
-        firstLayoutChildren = false;
 
         buildLocationRects();
 
@@ -107,7 +105,11 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
             tempPosition = tempPosition + itemHeight;
         }
 
-        computeMaxScroll();
+        if (itemCount == 0) {
+            maxScroll = 0;
+        } else {
+            computeMaxScroll();
+        }
     }
 
     /**
