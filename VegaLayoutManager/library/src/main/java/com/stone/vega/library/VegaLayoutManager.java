@@ -24,6 +24,10 @@ public class VegaLayoutManager extends RecyclerView.LayoutManager {
     private RecyclerView.Adapter adapter;
     private RecyclerView.Recycler recycler;
 
+    public VegaLayoutManager() {
+        setAutoMeasureEnabled(true);
+    }
+
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
