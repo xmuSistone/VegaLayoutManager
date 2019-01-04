@@ -2,6 +2,8 @@ package com.stone.vega;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
     private List<StockEntity> dataList = new ArrayList<>();
     private int redColor, greenColor;
     private RecyclerView.Adapter adapter;
+
+    private Handler handler;
+    private SwipeRefreshLayout refreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,29 @@ public class MainActivity extends AppCompatActivity {
 
         prepareDataList();
         adapter.notifyDataSetChanged();
+
+
+        // 4. refreshLayout
+        refreshLayout = findViewById(R.id.refresh_layout);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestHttp();
+            }
+        });
+    }
+
+    private void requestHttp() {
+        if (null == handler) {
+            handler = new Handler();
+        }
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(false);
+            }
+        }, 900);
     }
 
     private void prepareDataList() {
