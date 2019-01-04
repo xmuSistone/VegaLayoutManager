@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter adapter;
 
     private Handler handler;
+    private int currentPage = 0;
     private SwipeRefreshLayout refreshLayout;
 
     @Override
@@ -62,15 +63,15 @@ public class MainActivity extends AppCompatActivity {
         redColor = getResources().getColor(R.color.red);
         greenColor = getResources().getColor(R.color.green);
 
-        prepareDataList();
+        appendDataList();
         adapter.notifyDataSetChanged();
-
 
         // 4. refreshLayout
         refreshLayout = findViewById(R.id.refresh_layout);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                currentPage = 0;
                 requestHttp();
             }
         });
@@ -85,28 +86,34 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 refreshLayout.setRefreshing(false);
+                appendDataList();
+                adapter.notifyDataSetChanged();
             }
         }, 900);
     }
 
-    private void prepareDataList() {
-        for (int i = 0; i < 5; i++) {
-            dataList.add(new StockEntity("Google Inc.", 921.59f, 1, "+6.59 (+0.72%)"));
-            dataList.add(new StockEntity("Apple Inc.", 158.73f, 1, "+0.06 (+0.04%)"));
-            dataList.add(new StockEntity("Vmware Inc.", 109.74f, -1, "-0.24 (-0.22%)"));
-            dataList.add(new StockEntity("Microsoft Inc.", 75.44f, 1, "+0.28 (+0.37%)"));
-            dataList.add(new StockEntity("Facebook Inc.", 172.52f, 1, "+2.51 (+1.48%)"));
-            dataList.add(new StockEntity("IBM Inc.", 144.40f, -1, "-0.15 (-0.10%)"));
-            dataList.add(new StockEntity("Alibaba Inc.", 180.04f, 1, "+0.06 (+0.03%)"));
-            dataList.add(new StockEntity("Tencent Inc.", 346.400f, 1, "+2.200 (+0.64%)"));
-            dataList.add(new StockEntity("Baidu Inc.", 237.92f, -1, "-1.15 (-0.48%)"));
-            dataList.add(new StockEntity("Amazon Inc.", 969.47f, -1, "-4.72 (-0.48%)"));
-            dataList.add(new StockEntity("Oracle Inc.", 48.03f, -1, "-0.30 (-0.62%)"));
-            dataList.add(new StockEntity("Intel Inc.", 37.22f, 1, "+0.22 (+0.61%)"));
-            dataList.add(new StockEntity("Cisco Systems Inc.", 32.49f, -1, "-0.03 (-0.08%)"));
-            dataList.add(new StockEntity("Qualcomm Inc.", 52.30f, 1, "+0.05 (+0.10%)"));
-            dataList.add(new StockEntity("Sony Inc.", 37.65f, -1, "-0.74 (-1.93%)"));
+    private void appendDataList() {
+        if (currentPage == 0) {
+            dataList.clear();
         }
+        currentPage++;
+
+        dataList.add(new StockEntity("Google Inc.", 921.59f, 1, "+6.59 (+0.72%)"));
+        dataList.add(new StockEntity("Apple Inc.", 158.73f, 1, "+0.06 (+0.04%)"));
+        dataList.add(new StockEntity("Vmware Inc.", 109.74f, -1, "-0.24 (-0.22%)"));
+        dataList.add(new StockEntity("Microsoft Inc.", 75.44f, 1, "+0.28 (+0.37%)"));
+        dataList.add(new StockEntity("Facebook Inc.", 172.52f, 1, "+2.51 (+1.48%)"));
+        dataList.add(new StockEntity("IBM Inc.", 144.40f, -1, "-0.15 (-0.10%)"));
+        dataList.add(new StockEntity("Alibaba Inc.", 180.04f, 1, "+0.06 (+0.03%)"));
+        dataList.add(new StockEntity("Tencent Inc.", 346.400f, 1, "+2.200 (+0.64%)"));
+        dataList.add(new StockEntity("Baidu Inc.", 237.92f, -1, "-1.15 (-0.48%)"));
+        dataList.add(new StockEntity("Amazon Inc.", 969.47f, -1, "-4.72 (-0.48%)"));
+        dataList.add(new StockEntity("Oracle Inc.", 48.03f, -1, "-0.30 (-0.62%)"));
+        dataList.add(new StockEntity("Intel Inc.", 37.22f, 1, "+0.22 (+0.61%)"));
+        dataList.add(new StockEntity("Cisco Systems Inc.", 32.49f, -1, "-0.03 (-0.08%)"));
+        dataList.add(new StockEntity("Qualcomm Inc.", 52.30f, 1, "+0.05 (+0.10%)"));
+        dataList.add(new StockEntity("Sony Inc.", 37.65f, -1, "-0.74 (-1.93%)"));
+
     }
 
     @Override
@@ -133,6 +140,10 @@ public class MainActivity extends AppCompatActivity {
             public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
                 MyViewHolder myHolder = (MyViewHolder) holder;
                 myHolder.bindData(dataList.get(position));
+
+                if (position == dataList.size() - 1) {
+                    requestHttp();
+                }
             }
 
             @Override
