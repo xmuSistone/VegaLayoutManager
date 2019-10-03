@@ -1,329 +1,293 @@
+/
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.stone.vega.library;
 
 import android.graphics.Rect;
-import android.support.v4.util.ArrayMap;
-import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.View;
-import android.view.ViewGroup;
+import androidx.collection.ArrayMap;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.LayoutManager;
+import androidx.recyclerview.widget.RecyclerView.LayoutParams;
+import androidx.recyclerview.widget.RecyclerView.Recycler;
+import androidx.recyclerview.widget.RecyclerView.State;
 
-/**
- * Created by xmuSistone on 2017/9/20.
- */
-public class VegaLayoutManager extends RecyclerView.LayoutManager {
-
+public class VegaLayoutManager extends LayoutManager {
     private int scroll = 0;
-    private SparseArray<Rect> locationRects = new SparseArray<>();
+    private SparseArray<Rect> locationRects = new SparseArray();
     private SparseBooleanArray attachedItems = new SparseBooleanArray();
-    private ArrayMap<Integer, Integer> viewTypeHeightMap = new ArrayMap<>();
-
+    private ArrayMap<Integer, Integer> viewTypeHeightMap = new ArrayMap();
     private boolean needSnap = false;
     private int lastDy = 0;
     private int maxScroll = -1;
-    private RecyclerView.Adapter adapter;
-    private RecyclerView.Recycler recycler;
+    private Adapter adapter;
+    private Recycler recycler;
 
     public VegaLayoutManager() {
-        setAutoMeasureEnabled(true);
     }
 
-    @Override
-    public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-        return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    public LayoutParams generateDefaultLayoutParams() {
+        return new LayoutParams(-2, -2);
     }
 
-    @Override
-    public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
+    public void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter) {
         super.onAdapterChanged(oldAdapter, newAdapter);
         this.adapter = newAdapter;
     }
 
-    @Override
-    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        this.recycler = recycler; // 二话不说，先把recycler保存了
-        if (state.isPreLayout()) {
-            return;
+    public void onLayoutChildren(Recycler recycler, State state) {
+        this.recycler = recycler;
+        if (!state.isPreLayout()) {
+            this.buildLocationRects();
+            this.detachAndScrapAttachedViews(recycler);
+            this.layoutItemsOnCreate(recycler);
         }
-
-        buildLocationRects();
-
-        // 先回收放到缓存，后面会再次统一layout
-        detachAndScrapAttachedViews(recycler);
-        layoutItemsOnCreate(recycler);
     }
 
     private void buildLocationRects() {
-        locationRects.clear();
-        attachedItems.clear();
+        this.locationRects.clear();
+        this.attachedItems.clear();
+        int tempPosition = this.getPaddingTop();
+        int itemCount = this.getItemCount();
 
-        int tempPosition = getPaddingTop();
-        int itemCount = getItemCount();
-        for (int i = 0; i < itemCount; i++) {
-            // 1. 先计算出itemWidth和itemHeight
-            int viewType = adapter.getItemViewType(i);
+        for(int i = 0; i < itemCount; ++i) {
+            int viewType = this.adapter.getItemViewType(i);
             int itemHeight;
-            if (viewTypeHeightMap.containsKey(viewType)) {
-                itemHeight = viewTypeHeightMap.get(viewType);
+            if (this.viewTypeHeightMap.containsKey(viewType)) {
+                itemHeight = (Integer)this.viewTypeHeightMap.get(viewType);
             } else {
-                View itemView = recycler.getViewForPosition(i);
-                addView(itemView);
-                measureChildWithMargins(itemView, View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                itemHeight = getDecoratedMeasuredHeight(itemView);
-                viewTypeHeightMap.put(viewType, itemHeight);
+                View itemView = this.recycler.getViewForPosition(i);
+                this.addView(itemView);
+                this.measureChildWithMargins(itemView, 0, 0);
+                itemHeight = this.getDecoratedMeasuredHeight(itemView);
+                this.viewTypeHeightMap.put(viewType, itemHeight);
             }
 
-            // 2. 组装Rect并保存
             Rect rect = new Rect();
-            rect.left = getPaddingLeft();
+            rect.left = this.getPaddingLeft();
             rect.top = tempPosition;
-            rect.right = getWidth() - getPaddingRight();
+            rect.right = this.getWidth() - this.getPaddingRight();
             rect.bottom = rect.top + itemHeight;
-            locationRects.put(i, rect);
-            attachedItems.put(i, false);
-            tempPosition = tempPosition + itemHeight;
+            this.locationRects.put(i, rect);
+            this.attachedItems.put(i, false);
+            tempPosition += itemHeight;
         }
 
         if (itemCount == 0) {
-            maxScroll = 0;
+            this.maxScroll = 0;
         } else {
-            computeMaxScroll();
+            this.computeMaxScroll();
         }
+
     }
 
-    /**
-     * 对外提供接口，找到第一个可视view的index
-     */
     public int findFirstVisibleItemPosition() {
-        int count = locationRects.size();
-        Rect displayRect = new Rect(0, scroll, getWidth(), getHeight() + scroll);
-        for (int i = 0; i < count; i++) {
-            if (Rect.intersects(displayRect, locationRects.get(i)) &&
-                    attachedItems.get(i)) {
+        int count = this.locationRects.size();
+        Rect displayRect = new Rect(0, this.scroll, this.getWidth(), this.getHeight() + this.scroll);
+
+        for(int i = 0; i < count; ++i) {
+            if (Rect.intersects(displayRect, (Rect)this.locationRects.get(i)) && this.attachedItems.get(i)) {
                 return i;
             }
         }
+
         return 0;
     }
 
-    /**
-     * 计算可滑动的最大值
-     */
     private void computeMaxScroll() {
-        maxScroll = locationRects.get(locationRects.size() - 1).bottom - getHeight();
-        if (maxScroll < 0) {
-            maxScroll = 0;
-            return;
-        }
+        this.maxScroll = ((Rect)this.locationRects.get(this.locationRects.size() - 1)).bottom - this.getHeight();
+        if (this.maxScroll < 0) {
+            this.maxScroll = 0;
+        } else {
+            int itemCount = this.getItemCount();
+            int screenFilledHeight = 0;
 
-        int itemCount = getItemCount();
-        int screenFilledHeight = 0;
-        for (int i = itemCount - 1; i >= 0; i--) {
-            Rect rect = locationRects.get(i);
-            screenFilledHeight = screenFilledHeight + (rect.bottom - rect.top);
-            if (screenFilledHeight > getHeight()) {
-                int extraSnapHeight = getHeight() - (screenFilledHeight - (rect.bottom - rect.top));
-                maxScroll = maxScroll + extraSnapHeight;
-                break;
+            for(int i = itemCount - 1; i >= 0; --i) {
+                Rect rect = (Rect)this.locationRects.get(i);
+                screenFilledHeight += rect.bottom - rect.top;
+                if (screenFilledHeight > this.getHeight()) {
+                    int extraSnapHeight = this.getHeight() - (screenFilledHeight - (rect.bottom - rect.top));
+                    this.maxScroll += extraSnapHeight;
+                    break;
+                }
             }
+
         }
     }
 
-    /**
-     * 初始化的时候，layout子View
-     */
-    private void layoutItemsOnCreate(RecyclerView.Recycler recycler) {
-        int itemCount = getItemCount();
-        Rect displayRect = new Rect(0, scroll, getWidth(), getHeight() + scroll);
-        for (int i = 0; i < itemCount; i++) {
-            Rect thisRect = locationRects.get(i);
+    private void layoutItemsOnCreate(Recycler recycler) {
+        int itemCount = this.getItemCount();
+        Rect displayRect = new Rect(0, this.scroll, this.getWidth(), this.getHeight() + this.scroll);
+
+        for(int i = 0; i < itemCount; ++i) {
+            Rect thisRect = (Rect)this.locationRects.get(i);
             if (Rect.intersects(displayRect, thisRect)) {
                 View childView = recycler.getViewForPosition(i);
-                addView(childView);
-                measureChildWithMargins(childView, View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                layoutItem(childView, locationRects.get(i));
-                attachedItems.put(i, true);
-                childView.setPivotY(0);
-                childView.setPivotX(childView.getMeasuredWidth() / 2);
-                if (thisRect.top - scroll > getHeight()) {
+                this.addView(childView);
+                this.measureChildWithMargins(childView, 0, 0);
+                this.layoutItem(childView, (Rect)this.locationRects.get(i));
+                this.attachedItems.put(i, true);
+                childView.setPivotY(0.0F);
+                childView.setPivotX((float)(childView.getMeasuredWidth() / 2));
+                if (thisRect.top - this.scroll > this.getHeight()) {
                     break;
                 }
             }
         }
+
     }
 
-
-    /**
-     * 初始化的时候，layout子View
-     */
     private void layoutItemsOnScroll() {
-        int childCount = getChildCount();
-        // 1. 已经在屏幕上显示的child
-        int itemCount = getItemCount();
-        Rect displayRect = new Rect(0, scroll, getWidth(), getHeight() + scroll);
+        int childCount = this.getChildCount();
+        int itemCount = this.getItemCount();
+        Rect displayRect = new Rect(0, this.scroll, this.getWidth(), this.getHeight() + this.scroll);
         int firstVisiblePosition = -1;
         int lastVisiblePosition = -1;
-        for (int i = childCount - 1; i >= 0; i--) {
-            View child = getChildAt(i);
-            if (child == null) {
-                continue;
-            }
-            int position = getPosition(child);
-            if (!Rect.intersects(displayRect, locationRects.get(position))) {
-                // 回收滑出屏幕的View
-                removeAndRecycleView(child, recycler);
-                attachedItems.put(position, false);
-            } else {
-                // Item还在显示区域内，更新滑动后Item的位置
-                if (lastVisiblePosition < 0) {
-                    lastVisiblePosition = position;
-                }
 
-                if (firstVisiblePosition < 0) {
-                    firstVisiblePosition = position;
+        int i;
+        for(i = childCount - 1; i >= 0; --i) {
+            View child = this.getChildAt(i);
+            if (child != null) {
+                int position = this.getPosition(child);
+                if (!Rect.intersects(displayRect, (Rect)this.locationRects.get(position))) {
+                    this.removeAndRecycleView(child, this.recycler);
+                    this.attachedItems.put(position, false);
                 } else {
-                    firstVisiblePosition = Math.min(firstVisiblePosition, position);
-                }
+                    if (lastVisiblePosition < 0) {
+                        lastVisiblePosition = position;
+                    }
 
-                layoutItem(child, locationRects.get(position)); //更新Item位置
+                    if (firstVisiblePosition < 0) {
+                        firstVisiblePosition = position;
+                    } else {
+                        firstVisiblePosition = Math.min(firstVisiblePosition, position);
+                    }
+
+                    this.layoutItem(child, (Rect)this.locationRects.get(position));
+                }
             }
         }
 
-        // 2. 复用View处理
         if (firstVisiblePosition > 0) {
-            // 往前搜索复用
-            for (int i = firstVisiblePosition - 1; i >= 0; i--) {
-                if (Rect.intersects(displayRect, locationRects.get(i)) &&
-                        !attachedItems.get(i)) {
-                    reuseItemOnSroll(i, true);
-                } else {
-                    break;
-                }
+            for(i = firstVisiblePosition - 1; i >= 0 && Rect.intersects(displayRect, (Rect)this.locationRects.get(i)) && !this.attachedItems.get(i); --i) {
+                this.reuseItemOnSroll(i, true);
             }
         }
-        // 往后搜索复用
-        for (int i = lastVisiblePosition + 1; i < itemCount; i++) {
-            if (Rect.intersects(displayRect, locationRects.get(i)) &&
-                    !attachedItems.get(i)) {
-                reuseItemOnSroll(i, false);
-            } else {
-                break;
-            }
+
+        for(i = lastVisiblePosition + 1; i < itemCount && Rect.intersects(displayRect, (Rect)this.locationRects.get(i)) && !this.attachedItems.get(i); ++i) {
+            this.reuseItemOnSroll(i, false);
         }
+
     }
 
-    /**
-     * 复用position对应的View
-     */
     private void reuseItemOnSroll(int position, boolean addViewFromTop) {
-        View scrap = recycler.getViewForPosition(position);
-        measureChildWithMargins(scrap, 0, 0);
-        scrap.setPivotY(0);
-        scrap.setPivotX(scrap.getMeasuredWidth() / 2);
-
+        View scrap = this.recycler.getViewForPosition(position);
+        this.measureChildWithMargins(scrap, 0, 0);
+        scrap.setPivotY(0.0F);
+        scrap.setPivotX((float)(scrap.getMeasuredWidth() / 2));
         if (addViewFromTop) {
-            addView(scrap, 0);
+            this.addView(scrap, 0);
         } else {
-            addView(scrap);
+            this.addView(scrap);
         }
-        // 将这个Item布局出来
-        layoutItem(scrap, locationRects.get(position));
-        attachedItems.put(position, true);
-    }
 
+        this.layoutItem(scrap, (Rect)this.locationRects.get(position));
+        this.attachedItems.put(position, true);
+    }
 
     private void layoutItem(View child, Rect rect) {
-        int topDistance = scroll - rect.top;
-        int layoutTop, layoutBottom;
+        int topDistance = this.scroll - rect.top;
         int itemHeight = rect.bottom - rect.top;
+        int layoutTop;
+        int layoutBottom;
         if (topDistance < itemHeight && topDistance > 0) {
-            float rate1 = (float) topDistance / itemHeight;
-            float rate2 = 1 - rate1 * rate1 / 3;
-            float rate3 = 1 - rate1 * rate1;
+            float rate1 = (float)topDistance / (float)itemHeight;
+            float rate2 = 1.0F - rate1 * rate1 / 3.0F;
+            float rate3 = 1.0F - rate1 * rate1;
             child.setScaleX(rate2);
             child.setScaleY(rate2);
             child.setAlpha(rate3);
             layoutTop = 0;
             layoutBottom = itemHeight;
         } else {
-            child.setScaleX(1);
-            child.setScaleY(1);
-            child.setAlpha(1);
-
-            layoutTop = rect.top - scroll;
-            layoutBottom = rect.bottom - scroll;
+            child.setScaleX(1.0F);
+            child.setScaleY(1.0F);
+            child.setAlpha(1.0F);
+            layoutTop = rect.top - this.scroll;
+            layoutBottom = rect.bottom - this.scroll;
         }
-        layoutDecorated(child, rect.left, layoutTop, rect.right, layoutBottom);
+
+        this.layoutDecorated(child, rect.left, layoutTop, rect.right, layoutBottom);
     }
 
-    @Override
     public boolean canScrollVertically() {
         return true;
     }
 
-    @Override
-    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        if (getItemCount() == 0 || dy == 0) {
+    public int scrollVerticallyBy(int dy, Recycler recycler, State state) {
+        if (this.getItemCount() != 0 && dy != 0) {
+            int travel = dy;
+            if (dy + this.scroll < 0) {
+                travel = -this.scroll;
+            } else if (dy + this.scroll > this.maxScroll) {
+                travel = this.maxScroll - this.scroll;
+            }
+
+            this.scroll += travel;
+            this.lastDy = dy;
+            if (!state.isPreLayout() && this.getChildCount() > 0) {
+                this.layoutItemsOnScroll();
+            }
+
+            return travel;
+        } else {
             return 0;
         }
-        int travel = dy;
-        if (dy + scroll < 0) {
-            travel = -scroll;
-        } else if (dy + scroll > maxScroll) {
-            travel = maxScroll - scroll;
-        }
-        scroll += travel; //累计偏移量
-        lastDy = dy;
-        if (!state.isPreLayout() && getChildCount() > 0) {
-            layoutItemsOnScroll();
-        }
-
-        return travel;
     }
 
-    @Override
     public void onAttachedToWindow(RecyclerView view) {
         super.onAttachedToWindow(view);
-        new StartSnapHelper().attachToRecyclerView(view);
+        (new StartSnapHelper()).attachToRecyclerView(view);
     }
 
-    @Override
     public void onScrollStateChanged(int state) {
-        if (state == RecyclerView.SCROLL_STATE_DRAGGING) {
-            needSnap = true;
+        if (state == 1) {
+            this.needSnap = true;
         }
+
         super.onScrollStateChanged(state);
     }
 
     public int getSnapHeight() {
-        if (!needSnap) {
+        if (!this.needSnap) {
             return 0;
-        }
-        needSnap = false;
+        } else {
+            this.needSnap = false;
+            Rect displayRect = new Rect(0, this.scroll, this.getWidth(), this.getHeight() + this.scroll);
+            int itemCount = this.getItemCount();
 
-        Rect displayRect = new Rect(0, scroll, getWidth(), getHeight() + scroll);
-        int itemCount = getItemCount();
-        for (int i = 0; i < itemCount; i++) {
-            Rect itemRect = locationRects.get(i);
-            if (displayRect.intersect(itemRect)) {
-
-                if (lastDy > 0) {
-                    // scroll变大，属于列表往下走，往下找下一个为snapView
-                    if (i < itemCount - 1) {
-                        Rect nextRect = locationRects.get(i + 1);
+            for(int i = 0; i < itemCount; ++i) {
+                Rect itemRect = (Rect)this.locationRects.get(i);
+                if (displayRect.intersect(itemRect)) {
+                    if (this.lastDy > 0 && i < itemCount - 1) {
+                        Rect nextRect = (Rect)this.locationRects.get(i + 1);
                         return nextRect.top - displayRect.top;
                     }
+
+                    return itemRect.top - displayRect.top;
                 }
-                return itemRect.top - displayRect.top;
             }
+
+            return 0;
         }
-        return 0;
     }
 
     public View findSnapView() {
-        if (getChildCount() > 0) {
-            return getChildAt(0);
-        }
-        return null;
+        return this.getChildCount() > 0 ? this.getChildAt(0) : null;
     }
 }
